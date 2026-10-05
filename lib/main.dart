@@ -11,20 +11,18 @@ class DominoApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'لعبة الدومينو - Alpha',
+      title: 'دومينو احترافية - Alpha',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: const Color(0xFF132F3F), // لون خلفية داكن مشابه للصور
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
       ),
       home: const DominoMenuPage(),
     );
   }
 }
 
-// ==========================================
-// نموذج حجر الدومينو
-// ==========================================
 class DominoTile {
   final int left;
   final int right;
@@ -36,19 +34,16 @@ class DominoTile {
   bool get isDouble => left == right;
 }
 
-// ==========================================
-// صفحة القائمة الرئيسية
-// ==========================================
 class DominoMenuPage extends StatelessWidget {
   const DominoMenuPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('طاولة الدومينو اللعينة', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('دومينو الاحترافية', style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
+        backgroundColor: const Color(0xFF0B1D28),
       ),
       body: Center(
         child: Padding(
@@ -56,30 +51,38 @@ class DominoMenuPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.casino_rounded, size: 80, color: scheme.primary),
+              const Icon(Icons.casino_rounded, size: 90, color: Colors.amberAccent),
               const SizedBox(height: 24),
-              Text(
+              const Text(
                 'اختر نمط اللعب يا boss man',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: scheme.onSurface),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white70),
               ),
               const SizedBox(height: 40),
               SizedBox(
                 width: double.infinity,
-                child: FilledButton.icon(
+                child: ElevatedButton.icon(
                   onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DominoGamePage(playersCount: 2))),
-                  icon: const Icon(Icons.person_outline),
-                  label: const Text('لعب فردي (ضد بوت - لاعبين اثنين)'),
-                  style: FilledButton.styleFrom(padding: const EdgeInsets.all(16)),
+                  icon: const Icon(Icons.person),
+                  label: const Text('لعب فردي (ضد بوت)'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1B3B4B),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.all(16),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
-                child: FilledButton.icon(
+                child: ElevatedButton.icon(
                   onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DominoGamePage(playersCount: 4))),
-                  icon: const Icon(Icons.people_outline),
-                  label: const Text('لعب جماعي (4 لاعبين وبوتات)'),
-                  style: FilledButton.styleFrom(padding: const EdgeInsets.all(16)),
+                  icon: const Icon(Icons.people),
+                  label: const Text('لعب جماعي (4 لاعبين)'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1B3B4B),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.all(16),
+                  ),
                 ),
               ),
             ],
@@ -90,9 +93,6 @@ class DominoMenuPage extends StatelessWidget {
   }
 }
 
-// ==========================================
-// صفحة اللعب الرئيسية
-// ==========================================
 class DominoGamePage extends StatefulWidget {
   final int playersCount;
   const DominoGamePage({Key? key, required this.playersCount}) : super(key: key);
@@ -105,8 +105,8 @@ class _DominoGamePageState extends State<DominoGamePage> {
   List<DominoTile> stockPile = [];
   List<List<DominoTile>> playersHands = [];
   List<DominoTile> boardTiles = [];
-  int currentTurn = 0; // 0 = Player, others = AI bots
-  String gameMessage = 'ابدأ اللعب يا boss man!';
+  int currentTurn = 0;
+  String gameMessage = 'دورك للعب يا boss man.';
   int? boardLeftEnd;
   int? boardRightEnd;
 
@@ -123,7 +123,6 @@ class _DominoGamePageState extends State<DominoGamePage> {
     boardLeftEnd = null;
     boardRightEnd = null;
 
-    // توليد حجارة الدومينو (من 0-0 إلى 6-6)
     List<DominoTile> allTiles = [];
     for (int i = 0; i <= 6; i++) {
       for (int j = i; j <= 6; j++) {
@@ -132,7 +131,6 @@ class _DominoGamePageState extends State<DominoGamePage> {
     }
     allTiles.shuffle(Random());
 
-    // توزيع الحجارة (7 لكل لاعب في حالة لاعبين، أو 5 في حالة 4 لاعبين)
     int tilesPerPlayer = widget.playersCount == 2 ? 7 : 5;
     for (int p = 0; p < widget.playersCount; p++) {
       for (int t = 0; t < tilesPerPlayer; t++) {
@@ -141,7 +139,7 @@ class _DominoGamePageState extends State<DominoGamePage> {
     }
     stockPile = allTiles;
     currentTurn = 0;
-    gameMessage = 'دورك للعب يا boss man.';
+    gameMessage = 'ابدأ اللعب يا boss man.';
     setState(() {});
   }
 
@@ -172,17 +170,6 @@ class _DominoGamePageState extends State<DominoGamePage> {
     playersHands[playerIndex].remove(tile);
   }
 
-  bool _canPlayAny(int playerIndex) {
-    if (boardTiles.isEmpty) return true;
-    for (var tile in playersHands[playerIndex]) {
-      if (tile.left == boardLeftEnd || tile.right == boardLeftEnd ||
-          tile.left == boardRightEnd || tile.right == boardRightEnd) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   void _playerAttemptPlay(DominoTile tile) {
     if (currentTurn != 0) return;
 
@@ -201,6 +188,7 @@ class _DominoGamePageState extends State<DominoGamePage> {
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
+          backgroundColor: const Color(0xFF1B3B4B),
           title: const Text('اختر مكان اللعب'),
           content: const Text('هذا الحجر يناسب الطرفين، أين تريد وضعه؟'),
           actions: [
@@ -221,28 +209,25 @@ class _DominoGamePageState extends State<DominoGamePage> {
       });
     } else {
       setState(() {
-        gameMessage = 'هذا الحجر لا يناسب الأطراف الحالية يا boss man!';
+        gameMessage = 'هذا الحجر لا يناسب الأطراف الحالية!';
       });
     }
   }
 
   void _advanceTurn() {
     if (playersHands[0].isEmpty) {
-      gameMessage = 'لقد فزت باللعبة يا boss man!';
-      _showGameOverDialog('تهانينا! أنت الفائز.');
+      _showGameOverDialog('تهانينا! أنت الفائز يا boss man.');
       return;
     }
 
     for (int i = 1; i < widget.playersCount; i++) {
       if (playersHands[i].isEmpty) {
-        gameMessage = 'اللاعب الآلي رقم $i فاز باللعبة!';
         _showGameOverDialog('فاز البوت رقم $i. حاول مرة أخرى.');
         return;
       }
     }
 
     currentTurn = (currentTurn + 1) % widget.playersCount;
-    
     if (currentTurn != 0) {
       _executeAiTurn(currentTurn);
     } else {
@@ -255,7 +240,6 @@ class _DominoGamePageState extends State<DominoGamePage> {
   void _executeAiTurn(int aiIndex) {
     Future.delayed(const Duration(milliseconds: 800), () {
       if (!mounted) return;
-      
       DominoTile? playableTile;
       bool playRight = true;
 
@@ -296,6 +280,7 @@ class _DominoGamePageState extends State<DominoGamePage> {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1B3B4B),
         title: Text(title),
         content: const Text('هل تريد بدء جولة جديدة؟'),
         actions: [
@@ -305,123 +290,125 @@ class _DominoGamePageState extends State<DominoGamePage> {
     );
   }
 
+  // رسم حجر دومينو واقعي مشابه للصور المطلوبة[span_5](start_span)[span_5](end_span)[span_6](start_span)[span_6](end_span)[span_7](start_span)[span_7](end_span)[span_8](start_span)[span_8](end_span)[span_9](start_span)[span_9](end_span)
+  Widget _buildDominoTileWidget(DominoTile tile, {bool isPlayable = true, VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 48,
+        height: 85,
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        decoration: BoxDecoration(
+          color: isPlayable ? Colors.white : Colors.grey.shade400,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: Colors.black87, width: 1.5),
+          boxShadow: const [
+            BoxShadow(color: Colors.black45, blurRadius: 4, offset: Offset(0, 2))
+          ],
+        ),
+        child: Column(
+          children: [
+            Expanded(child: Center(child: Text('${tile.left}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black)))),
+            Container(height: 1, color: Colors.black54),
+            Expanded(child: Center(child: Text('${tile.right}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black)))),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
     return Scaffold(
       appBar: AppBar(
-        title: Text('طاولة الدومينو (${widget.playersCount} لاعبين)'),
+        title: const Text('دومينو', style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
+        backgroundColor: const Color(0xFF0B1D28),
+        actions: [
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: Text('${stockPile.length}/14', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.amberAccent)),
+            ),
+          )
+        ],
       ),
       body: Column(
         children: [
+          // معلومات الخصم العلوي
           Container(
-            padding: const EdgeInsets.all(12),
-            color: scheme.surfaceContainerHighest.withOpacity(0.5),
-            width: double.infinity,
-            child: Text(
-              gameMessage,
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: scheme.primary),
+            padding: const EdgeInsets.all(8),
+            color: const Color(0xFF0B1D28),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const CircleAvatar(radius: 16, backgroundColor: Colors.amber, child: Icon(Icons.person, size: 18, color: Colors.black)),
+                const SizedBox(width: 8),
+                Text('الخصم (متبقي: ${playersHands.length > 1 ? playersHands[1].length : 0})', style: const TextStyle(color: Colors.white70)),
+              ],
             ),
           ),
-          
+
+          // طاولة اللعب الاحترافية
           Expanded(
-            flex: 3,
             child: Container(
               margin: const EdgeInsets.all(12),
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.teal.shade900,
+                color: const Color(0xFF102634),
                 borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.white10),
               ),
               child: Center(
                 child: boardTiles.isEmpty
-                    ? const Text('الطاولة فارغة، العب أول حجر', style: TextStyle(color: Colors.white70))
+                    ? const Text('الطاولة فارغة، العب أول حجر', style: TextStyle(color: Colors.white57))
                     : SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: boardTiles.map((tile) => Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 4),
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              '${tile.left} | ${tile.right}',
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black),
-                            ),
-                          )).toList(),
+                          children: boardTiles.map((tile) => _buildDominoTileWidget(tile, isPlayable: false)).toList(),
                         ),
                       ),
               ),
             ),
           ),
 
+          // رسالة الحالة والنتيجة السفلية
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('الحجارة المتبقية بالبنك: ${stockPile.length}'),
-                Text('الأطراف: [${boardLeftEnd ?? "?"} ... ${boardRightEnd ?? "?"}]', style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text(gameMessage, style: const TextStyle(color: Colors.amberAccent, fontWeight: FontWeight.bold)),
+                const Text('النتيجة: 0/100', style: TextStyle(color: Colors.white54)),
               ],
             ),
           ),
-          const Divider(),
 
-          Expanded(
-            flex: 2,
+          // أحجار اللاعب في الأسفل
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+            decoration: const BoxDecoration(
+              color: Color(0xFF0B1D28),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
             child: Column(
               children: [
-                const Text('أحجارك يا boss man:', style: TextStyle(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 8),
-                Expanded(
+                SizedBox(
+                  height: 90,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: playersHands[0].length,
                     itemBuilder: (ctx, idx) {
                       final tile = playersHands[0][idx];
-                      return GestureDetector(
+                      return _buildDominoTileWidget(
+                        tile,
+                        isPlayable: currentTurn == 0,
                         onTap: currentTurn == 0 ? () => _playerAttemptPlay(tile) : null,
-                        child: Container(
-                          width: 60,
-                          margin: const EdgeInsets.symmetric(horizontal: 6),
-                          decoration: BoxDecoration(
-                            color: currentTurn == 0 ? Colors.amber.shade100 : Colors.grey.shade300,
-                            border: Border.all(color: Colors.black, width: 2),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text('${tile.left}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                              const Divider(color: Colors.black, thickness: 1, height: 4),
-                              Text('${tile.right}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                            ],
-                          ),
-                        ),
                       );
                     },
                   ),
                 ),
-                if (currentTurn == 0 && !_canPlayAny(0) && stockPile.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          playersHands[0].add(stockPile.removeAt(0));
-                          gameMessage = 'سحبت حجراً من البنك يا boss man.';
-                        });
-                      },
-                      icon: const Icon(Icons.add),
-                      label: const Text('سحب حجر من البنك'),
-                    ),
-                  ),
               ],
             ),
           ),
