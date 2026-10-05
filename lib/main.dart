@@ -156,7 +156,6 @@ class _DominoGamePageState extends State<DominoGamePage> {
           boardRightEnd = tile.right;
           boardTiles.add(tile);
         } else if (tile.right == boardRightEnd) {
-          // عكس الحجر إذا تطلب الأمر
           boardRightEnd = tile.left;
           boardTiles.add(DominoTile(tile.right, tile.left));
         }
@@ -195,12 +194,10 @@ class _DominoGamePageState extends State<DominoGamePage> {
       return;
     }
 
-    // التحقق من إمكانية اللعب يساراً أو يميناً
     bool matchesLeft = (tile.left == boardLeftEnd || tile.right == boardLeftEnd);
     bool matchesRight = (tile.left == boardRightEnd || tile.right == boardRightEnd);
 
     if (matchesLeft && matchesRight) {
-      // إظهار خيار للعميل
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
@@ -230,7 +227,6 @@ class _DominoGamePageState extends State<DominoGamePage> {
   }
 
   void _advanceTurn() {
-    // التحقق من الفوز
     if (playersHands[0].isEmpty) {
       gameMessage = 'لقد فزت باللعبة يا boss man!';
       _showGameOverDialog('تهانينا! أنت الفائز.');
@@ -247,7 +243,6 @@ class _DominoGamePageState extends State<DominoGamePage> {
 
     currentTurn = (currentTurn + 1) % widget.playersCount;
     
-    // إذا كان الدور للـ AI
     if (currentTurn != 0) {
       _executeAiTurn(currentTurn);
     } else {
@@ -261,7 +256,6 @@ class _DominoGamePageState extends State<DominoGamePage> {
     Future.delayed(const Duration(milliseconds: 800), () {
       if (!mounted) return;
       
-      // ذكاء اصطناعي بسيط: البحث عن أول حجر صالح واللعب به
       DominoTile? playableTile;
       bool playRight = true;
 
@@ -287,7 +281,6 @@ class _DominoGamePageState extends State<DominoGamePage> {
           _playTile(aiIndex, playableTile, playRight);
           gameMessage = 'البوت رقم $aiIndex لعب حجراً.';
         } else if (stockPile.isNotEmpty) {
-          // سحب من البنك إذا لم يجد حجراً
           playersHands[aiIndex].add(stockPile.removeAt(0));
           gameMessage = 'البوت رقم $aiIndex سحب من البنك.';
         } else {
@@ -323,7 +316,6 @@ class _DominoGamePageState extends State<DominoGamePage> {
       ),
       body: Column(
         children: [
-          // لوحة الرسائل وحالة اللعبة
           Container(
             padding: const EdgeInsets.all(12),
             color: scheme.surfaceContainerHighest.withOpacity(0.5),
@@ -335,7 +327,6 @@ class _DominoGamePageState extends State<DominoGamePage> {
             ),
           ),
           
-          // مساحة اللعب (الطاولة الوسطية)
           Expanded(
             flex: 3,
             child: Container(
@@ -347,7 +338,6 @@ class _DominoGamePageState extends State<DominoGamePage> {
               ),
               child: Center(
                 child: boardTiles.isEmpty
-                    .isNotEmpty == true && false // تعبير بسيط
                     ? const Text('الطاولة فارغة، العب أول حجر', style: TextStyle(color: Colors.white70))
                     : SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
@@ -371,7 +361,6 @@ class _DominoGamePageState extends State<DominoGamePage> {
             ),
           ),
 
-          // معلومات البنك والأطراف الحالية
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(
@@ -384,7 +373,6 @@ class _DominoGamePageState extends State<DominoGamePage> {
           ),
           const Divider(),
 
-          // أوراق اللاعب الحالي (أنت)
           Expanded(
             flex: 2,
             child: Column(
