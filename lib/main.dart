@@ -361,7 +361,11 @@ class _DominoGamePageState extends State<DominoGamePage> {
               ),
               child: Center(
                 child: boardTiles.isEmpty
-                    ? const Text('الطاولة فارغة، العب أول حجر', style: TextStyle(color: Colors.white57))
+                    // استبدل هذا الجزء في السطر 364:
+// ? const Text('الطاولة فارغة، العب أول حجر', style: TextStyle(color: Colors.white57))
+
+// بالصحيح التالي:
+                    ? const Text('الطاولة فارغة، العب أول حجر', style: TextStyle(color: Colors.white60))
                     : SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
